@@ -1,8 +1,15 @@
+###############################################################################
 # getGeneMF
 # 02-24-22
 # Christy LaFlamme
 # Purpose: takes a list of genes and adds gene functional information 
+###############################################################################
+# genelist: should be a list of genes (RefSeq Names)
+# workDir: should be a string path to the working directory
+# queryName: should be a string name for the output file
+###############################################################################
 
+# load required libraries
 library(mygene)
 library(data.table)
 library(readxl)
@@ -11,8 +18,6 @@ getGeneMF <- function(genelist, workDir, queryName) {
   
   # query functional information
   res <- queryMany(genelist, scopes = 'symbol', fields = c('entrezgene', 'go'), species = 'human')
-  
-  # create dataframe
   res.df <- data.frame(res) 
   res.pos <- res.df[is.na(res$notfound),] # only keep rows for which annotation information was found
   
@@ -22,7 +27,7 @@ getGeneMF <- function(genelist, workDir, queryName) {
     res.MF <- NULL
     
     gene <- res.pos$query[i] # loop over the genes
-    res.MF <- res[res$query == gene, 'go.MF'][[1]] # geet MF information
+    res.MF <- res[res$query == gene, 'go.MF'][[1]] # get MF information
     res.pos$MF_summary[i] <- toString(res.MF$term) # add MF information to the dataframe
     
   }
@@ -31,3 +36,4 @@ getGeneMF <- function(genelist, workDir, queryName) {
   
   write.table(res.print, file = paste(workDir, queryName, sep = ""), quote = F, sep = "\t") # write to text file 
 }
+
