@@ -97,13 +97,13 @@ clusterCHD2 <- function(phenoData.all, phenoData.test, mVal, workDir, filename) 
 ###############################################################################
 # example usage
 
-phenoData.all <- as.data.frame(read.metharray.sheet(dataDir))
-phenoData.test <- phenoData.all %>%
-  filter(Sample_Plate == "2632-GC-P1")
-mVal <- readRDS(paste(outputDir, "933_all_DEE_controls_blood_saliva/mVal.filtered.RDS", sep = "")) 
-workDir = "/Users/claflamm/OneDrive - St. Jude Children's Research Hospital/Mefford/methylation/CHD2/output/Gemma_Fb_iPSC_NPC/"
-filename = "clusterCHD2_Gemma_Fb_iPSC_NPC"
-clusterCHD2 <- clusterCHD2(phenoData.all, phenoData.test, mVal, workDir, filename)
+# phenoData.all <- as.data.frame(read.metharray.sheet(dataDir))
+# phenoData.test <- phenoData.all %>%
+#   filter(Sample_Plate == "2632-GC-P1")
+# mVal <- readRDS(paste(outputDir, "933_all_DEE_controls_blood_saliva/mVal.filtered.RDS", sep = "")) 
+# workDir = "/Users/claflamm/OneDrive - St. Jude Children's Research Hospital/Mefford/methylation/CHD2/output/Gemma_Fb_iPSC_NPC/"
+# filename = "clusterCHD2_Gemma_Fb_iPSC_NPC"
+# clusterCHD2 <- clusterCHD2(phenoData.all, phenoData.test, mVal, workDir, filename)
 
 ###############################################################################
 
