@@ -95,6 +95,20 @@ annotate_450k <- function(dmrlist, data, annotDir) {
   return(dmrlist)
 }
 
+#########################BRAIN EXP ANNOTATION########################################
+
+annotate_brain_exp <- function(dmrlist, annotDir) {
+  
+  gene.brain.exp <- fread(paste(annotDir, "rna_brain_gtex.tsv", sep = "")) # read in RNA brain GTex data
+  gene.brain.exp <- gene.brain.exp[,c("Gene name", "nTPM")] # get the gene name and normalized transcripts per million column
+  colnames(gene.brain.exp)[2] <- "Brain_Gene_Expression_nTPM"
+  gene.brain.exp <- as.data.frame(gene.brain.exp[, lapply(.SD, mean), by= "Gene name"]) # take the average across brain regions
+  
+  dmrlist <- merge(dmrlist, gene.brain.exp, by.x = "Gene.Name", by.y = "Gene name", all.x = TRUE, all.y = FALSE, sort = FALSE) 
+  
+}
+
+
 #########################OMIM ANNOTATION########################################
 annotate_OMIM <- function(dmrlist, annotDir) {
   
@@ -315,9 +329,10 @@ dmr_analysis <- function(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome
   print("450k annotation complete")
   #########################################################
   # add gene expression information
-  # Ensembl gene identifier ("Gene"), analysed sample ("Tissue"), transcripts per million ("TPM"), protein-transcripts per million ("pTPM") and normalized expression ("nTPM"). 
-  # gene.brain.exp <- fread(paste(annotDir, "rna_brain_gtex.tsv", sep = ""))
-  # gene.brain.exp
+  # Ensembl gene identifier ("Gene"), analysed sample ("Tissue"), transcripts per million ("TPM"), protein-transcripts per million ("pTPM") and normalized expression ("nTPM").
+  print("Starting brain gene expression annotation")
+  dmrlist <- annotate_brain_exp(dmrlist, annotDir)
+  print("Brain gene expression annotation complete")
   #########################################################
   # add OMIM information for genes
   print("Starting OMIM annotation")
@@ -331,7 +346,6 @@ dmr_analysis <- function(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome
   
   #########################################################
   # TFBS
-  
   #########################################################
   # annotate the dmrlist with phenotype metadata (e.g. sample name) and number of DMRs per sample
   print("Starting phenoData annotation")
@@ -373,14 +387,14 @@ dmr_analysis <- function(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome
   samples <- colnames(data)
   samples <- tail(samples, -4) # remove probe, chr, start, stop
   samples <- head(samples, -5) # remove quantile and significance information
-  
+
   # create folder for plotting the dmrs "by_dmr" as opposed to "by_sample" etc.
   by_dmr <- paste(workDir, dmrDir, chromosome, "_dmr_plots", "/by_dmr", sep = "")
-  
+
   if (!file.exists(by_dmr)) {
     dir.create(by_dmr)
   }
-  
+
   #########################################################
   # ERROR handling
   # detach("package:minfi")
@@ -415,6 +429,7 @@ epiFile = NULL
 #########################################################
 # set number of samples
 n = "1253"
+# n_subset = "1223_blood_saliva_samples_less100dmrs"
 n_subset = "1223_blood_saliva_samples_less100dmrs"
 window = 1000
 max = "0.99"
@@ -425,36 +440,154 @@ chromosome = "autosomes"
 workDir = paste0("/home/claflamm/methylation/raw_idats/", n, "_all_metharray/output/", n, "_all_metharray_dev/", n, "_all_metharray_dev_preprocessIllumina/")
 dmrDir = paste0("normalized_data/dmr/", n_subset, "/dmr_", window, "_", min, "_", max, "/")
 annotDir <- "/home/claflamm/methylation/annotations/"
-
 ################AUTOSOMES#####################
 # set names of files
-dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
-epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
+# dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
+# epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
 
-dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
+# dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
 ################MALE SEXCHR#####################
 chromosome = NULL
 dmrFile = NULL
 epiFile = NULL
 
-chromosome = "male_sexchr"
+# chromosome = "male_sexchr"
 
 dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
 epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
 
 dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
-################FEMALE SEXCHR#####################
-chromosome = NULL
-dmrFile = NULL
-epiFile = NULL
+# ################FEMALE SEXCHR#####################
+# chromosome = NULL
+# dmrFile = NULL
+# epiFile = NULL
+# 
+# chromosome = "female_sexchr"
+# 
+# dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
+# epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
+# 
+# dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
-chromosome = "female_sexchr"
+################FULL EPI FILE######################
+# epiFile.all <- paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt")
+# epiFile.all <- fread(paste0(workDir, dmrDir, epiFile.all))
 
-dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
-epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
-
-dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
+dmrFile <-  fread(paste0(workDir, dmrDir, "annotations/", dmrFile))
+epiFile <- fread(paste0(workDir, dmrDir, epiFile))
 
 #########################################################
+# plot (a) specific region(s) of interest (ROI)
+
+# plotROI <- function(data, samples, intSamples, startPos, endPos, chrCol, startCol, title = ""){ # intSamples = list of samples of interest to be differentially colored
+#   data = data %>% slice(startPos:endPos)
+#   epivarSamples = data %>% select(Sign_individuals_t0.1_n3_w1k_BOTH) %>%
+#     filter(!is.na(Sign_individuals_t0.1_n3_w1k_BOTH)) %>% # filter out N/A
+#     separate_rows(Sign_individuals_t0.1_n3_w1k_BOTH, sep = ",") %>% # generate separate rows for comma separated values
+#     distinct %>% pull
+# 
+#   data = data %>%
+#     melt(id.vars = setdiff(colnames(data), samples), variable.name = "sampleID", value.name = "Beta") %>%
+#     mutate(status = with(data, ifelse(sampleID %in% epivarSamples, "DMR-carrier", ifelse(sampleID %in% unlist(strsplit(intSamples,",")), "Samples-of-Interest", "normal"))))
+# 
+#   # plot
+#   g = ggplot(data =  data, aes_string(x=startCol, y="Beta")) +
+#     geom_line(aes(group=sampleID,size=status, linetype = status, colour = status)) +
+#     scale_colour_manual(values = c("DMR-carrier" = "red", "Samples-of-Interest" = "blue", "normal" = "black")) +
+#     scale_size_manual(values = c("DMR-carrier"=0.9, "Samples-of-Interest" = 0.5, "normal" = 0.2 )) +
+#     scale_linetype_manual(values = c("DMR-carrier"="solid", "Samples-of-Interest" = "solid", "normal" = "dashed" )) +
+#     coord_cartesian(ylim = c(0,1)) +
+#     xlab(paste0("Genomic Position at ",data[1,chrCol])) +
+#     ylab("Methylation Value") +
+#     labs(title = title) +
+#     theme_bw()
+#   g
+# }
+# 
+# 
+# # import all data (not just significant data)
+# data.all <- fread(paste(workDir, dmrDir, epiFile.all, sep = "")) # load all epivariation data
+# 
+# # plot all DMRs
+# by_region <- paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region", sep = "")
+# 
+# if (!file.exists(by_region)) {
+#   dir.create(by_region)
+# }
+# 
+# # takes a bed file of regions of interest (ROI); regions must be exact locations of CpG sites for the below code to work
+# file = "BCLAF_region.txt"
+# ROI <- as.data.frame(fread(paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region/", file, sep = "")))
+# ROI$num <- 1:nrow(ROI)
+# ROI$width <- abs(ROI$end - ROI$start)
+# # 
+# #####################################
+# 
+# for (region in 1:nrow(ROI)) {
+#   
+#   num = NULL
+#   chrom = NULL
+#   start = NULL
+#   end = NULL
+#   gene = NULL
+#   width = NULL
+#   samples_of_interest = NULL
+#   
+#   num = ROI$num[region]
+#   chrom = ROI$chr[region]
+#   start = ROI$start[region]
+#   end = ROI$end[region]
+#   gene = ROI$gene[region]
+#   width = ROI$width[region]
+#   samples_of_interest = ROI$samples[region]
+#   
+#   file = paste(workDir, dmrDir, chromosome, "_dmr_plots", "/by_region/", num, "_", chrom, "_", start, "_", end, "_", gene, "_", width, "_", samples_of_interest, ".pdf", sep = "")
+#   
+#   if(!file.exists(file)) {
+# 
+#     Start_ROI = NULL
+#     End_ROI = NULL
+# 
+#     Start_ROI = which(data.all$CpG_beg == paste(ROI[region, "start"]))
+#     End_ROI = which(data.all$CpG_end == paste(ROI[region, "end"]))
+# 
+#     pdf(file)
+# 
+#     ROIplot <- plotROI(data.all, samples, samples_of_interest, Start_ROI, End_ROI, "CpG_chrm","CpG_beg", title = gene)
+#     print(ROIplot)
+# 
+#     dev.off()
+#     print(file)
+# 
+#   }
+#   
+# }
+
+# R version 4.2.0 (2022-04-22)
+# Platform: x86_64-pc-linux-gnu (64-bit)
+# Running under: Ubuntu 20.04.4 LTS
+# 
+# Matrix products: default
+# BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+# LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+# 
+# locale:
+#   [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+# [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+# 
+# attached base packages:
+#   [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#   [1] reshape2_1.4.4       GenomicRanges_1.48.0 GenomeInfoDb_1.32.2  IRanges_2.30.0       S4Vectors_0.34.0     BiocGenerics_0.42.0  ggprism_1.0.3        ggplot2_3.3.6       
+# [9] tidyr_1.2.0          dplyr_1.0.9          data.table_1.14.2   
+# 
+# loaded via a namespace (and not attached):
+#   [1] Rcpp_1.0.9             plyr_1.8.7             XVector_0.36.0         pillar_1.7.0           compiler_4.2.0         zlibbioc_1.42.0        bitops_1.0-7          
+# [8] tools_4.2.0            digest_0.6.29          lifecycle_1.0.1        tibble_3.1.7           gtable_0.3.0           pkgconfig_2.0.3        rlang_1.0.3           
+# [15] DBI_1.1.3              cli_3.3.0              rstudioapi_0.13        GenomeInfoDbData_1.2.8 stringr_1.4.0          withr_2.5.0            generics_0.1.3        
+# [22] vctrs_0.4.1            grid_4.2.0             tidyselect_1.1.2       glue_1.6.2             R6_2.5.1               fansi_1.0.3            purrr_0.3.4           
+# [29] magrittr_2.0.3         scales_1.2.0           ellipsis_0.3.2         assertthat_0.2.1       colorspace_2.0-3       utf8_1.2.2             stringi_1.7.8         
+# [36] RCurl_1.98-1.7         munsell_0.5.0          crayon_1.5.1          
