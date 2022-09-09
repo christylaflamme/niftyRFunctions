@@ -343,7 +343,7 @@ SCN1A.samples <- phenoData.blood %>% filter(Solved_Gene == "SCN1A") # all CHD2 s
 exclude_controls <- fread(paste0(outputDir, "1230_blood_saliva_PBMC_samples_0.995.0.005_sample.summary.txt"))
 exclude_controls <- exclude_controls %>% filter(nDMRsperSample > 10) %>% select(Sample_ID)
 
-# ############################################################################################################
+############################################################################################################
 # SCN1A NONSENSE
 SCN1A.samples.nonsense <- SCN1A.samples %>% filter(Solved_Mutation_Type == "Nonsense")
 # subset samples for nonsense group; starting with just plate 8 samples to mitigate batch effects

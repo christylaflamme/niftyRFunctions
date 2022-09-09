@@ -442,10 +442,10 @@ dmrDir = paste0("normalized_data/dmr/", n_subset, "/dmr_", window, "_", min, "_"
 annotDir <- "/home/claflamm/methylation/annotations/"
 ################AUTOSOMES#####################
 # set names of files
-# dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
-# epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
+dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
+epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
 
-# dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
+dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
 ################MALE SEXCHR#####################
 chromosome = NULL
@@ -460,20 +460,20 @@ epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", m
 dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
 # ################FEMALE SEXCHR#####################
-# chromosome = NULL
-# dmrFile = NULL
-# epiFile = NULL
-# 
-# chromosome = "female_sexchr"
-# 
-# dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
-# epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
-# 
-# dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
+chromosome = NULL
+dmrFile = NULL
+epiFile = NULL
+
+chromosome = "female_sexchr"
+
+dmrFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.sig_dmr.anno.tsv")
+epiFile = paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt.sig")
+
+dmr_analysis(workDir, dmrDir, annotDir, dmrFile, epiFile, chromosome, n, n_subset)
 
 ################FULL EPI FILE######################
-# epiFile.all <- paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt")
-# epiFile.all <- fread(paste0(workDir, dmrDir, epiFile.all))
+epiFile.all <- paste0(gsub("_", ".", chromosome), ".beta.txt.sorted_", window, "_", max, "_", min, "_findEpivariation.txt")
+epiFile.all <- fread(paste0(workDir, dmrDir, epiFile.all))
 
 dmrFile <-  fread(paste0(workDir, dmrDir, "annotations/", dmrFile))
 epiFile <- fread(paste0(workDir, dmrDir, epiFile))
@@ -481,89 +481,89 @@ epiFile <- fread(paste0(workDir, dmrDir, epiFile))
 #########################################################
 # plot (a) specific region(s) of interest (ROI)
 
-# plotROI <- function(data, samples, intSamples, startPos, endPos, chrCol, startCol, title = ""){ # intSamples = list of samples of interest to be differentially colored
-#   data = data %>% slice(startPos:endPos)
-#   epivarSamples = data %>% select(Sign_individuals_t0.1_n3_w1k_BOTH) %>%
-#     filter(!is.na(Sign_individuals_t0.1_n3_w1k_BOTH)) %>% # filter out N/A
-#     separate_rows(Sign_individuals_t0.1_n3_w1k_BOTH, sep = ",") %>% # generate separate rows for comma separated values
-#     distinct %>% pull
-# 
-#   data = data %>%
-#     melt(id.vars = setdiff(colnames(data), samples), variable.name = "sampleID", value.name = "Beta") %>%
-#     mutate(status = with(data, ifelse(sampleID %in% epivarSamples, "DMR-carrier", ifelse(sampleID %in% unlist(strsplit(intSamples,",")), "Samples-of-Interest", "normal"))))
-# 
-#   # plot
-#   g = ggplot(data =  data, aes_string(x=startCol, y="Beta")) +
-#     geom_line(aes(group=sampleID,size=status, linetype = status, colour = status)) +
-#     scale_colour_manual(values = c("DMR-carrier" = "red", "Samples-of-Interest" = "blue", "normal" = "black")) +
-#     scale_size_manual(values = c("DMR-carrier"=0.9, "Samples-of-Interest" = 0.5, "normal" = 0.2 )) +
-#     scale_linetype_manual(values = c("DMR-carrier"="solid", "Samples-of-Interest" = "solid", "normal" = "dashed" )) +
-#     coord_cartesian(ylim = c(0,1)) +
-#     xlab(paste0("Genomic Position at ",data[1,chrCol])) +
-#     ylab("Methylation Value") +
-#     labs(title = title) +
-#     theme_bw()
-#   g
-# }
-# 
-# 
-# # import all data (not just significant data)
-# data.all <- fread(paste(workDir, dmrDir, epiFile.all, sep = "")) # load all epivariation data
-# 
-# # plot all DMRs
-# by_region <- paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region", sep = "")
-# 
-# if (!file.exists(by_region)) {
-#   dir.create(by_region)
-# }
-# 
-# # takes a bed file of regions of interest (ROI); regions must be exact locations of CpG sites for the below code to work
-# file = "BCLAF_region.txt"
-# ROI <- as.data.frame(fread(paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region/", file, sep = "")))
-# ROI$num <- 1:nrow(ROI)
-# ROI$width <- abs(ROI$end - ROI$start)
-# # 
-# #####################################
-# 
-# for (region in 1:nrow(ROI)) {
-#   
-#   num = NULL
-#   chrom = NULL
-#   start = NULL
-#   end = NULL
-#   gene = NULL
-#   width = NULL
-#   samples_of_interest = NULL
-#   
-#   num = ROI$num[region]
-#   chrom = ROI$chr[region]
-#   start = ROI$start[region]
-#   end = ROI$end[region]
-#   gene = ROI$gene[region]
-#   width = ROI$width[region]
-#   samples_of_interest = ROI$samples[region]
-#   
-#   file = paste(workDir, dmrDir, chromosome, "_dmr_plots", "/by_region/", num, "_", chrom, "_", start, "_", end, "_", gene, "_", width, "_", samples_of_interest, ".pdf", sep = "")
-#   
-#   if(!file.exists(file)) {
-# 
-#     Start_ROI = NULL
-#     End_ROI = NULL
-# 
-#     Start_ROI = which(data.all$CpG_beg == paste(ROI[region, "start"]))
-#     End_ROI = which(data.all$CpG_end == paste(ROI[region, "end"]))
-# 
-#     pdf(file)
-# 
-#     ROIplot <- plotROI(data.all, samples, samples_of_interest, Start_ROI, End_ROI, "CpG_chrm","CpG_beg", title = gene)
-#     print(ROIplot)
-# 
-#     dev.off()
-#     print(file)
-# 
-#   }
-#   
-# }
+plotROI <- function(data, samples, intSamples, startPos, endPos, chrCol, startCol, title = ""){ # intSamples = list of samples of interest to be differentially colored
+  data = data %>% slice(startPos:endPos)
+  epivarSamples = data %>% select(Sign_individuals_t0.1_n3_w1k_BOTH) %>%
+    filter(!is.na(Sign_individuals_t0.1_n3_w1k_BOTH)) %>% # filter out N/A
+    separate_rows(Sign_individuals_t0.1_n3_w1k_BOTH, sep = ",") %>% # generate separate rows for comma separated values
+    distinct %>% pull
+
+  data = data %>%
+    melt(id.vars = setdiff(colnames(data), samples), variable.name = "sampleID", value.name = "Beta") %>%
+    mutate(status = with(data, ifelse(sampleID %in% epivarSamples, "DMR-carrier", ifelse(sampleID %in% unlist(strsplit(intSamples,",")), "Samples-of-Interest", "normal"))))
+
+  # plot
+  g = ggplot(data =  data, aes_string(x=startCol, y="Beta")) +
+    geom_line(aes(group=sampleID,size=status, linetype = status, colour = status)) +
+    scale_colour_manual(values = c("DMR-carrier" = "red", "Samples-of-Interest" = "blue", "normal" = "black")) +
+    scale_size_manual(values = c("DMR-carrier"=0.9, "Samples-of-Interest" = 0.5, "normal" = 0.2 )) +
+    scale_linetype_manual(values = c("DMR-carrier"="solid", "Samples-of-Interest" = "solid", "normal" = "dashed" )) +
+    coord_cartesian(ylim = c(0,1)) +
+    xlab(paste0("Genomic Position at ",data[1,chrCol])) +
+    ylab("Methylation Value") +
+    labs(title = title) +
+    theme_bw()
+  g
+}
+
+
+# import all data (not just significant data)
+data.all <- fread(paste(workDir, dmrDir, epiFile.all, sep = "")) # load all epivariation data
+
+# plot all DMRs
+by_region <- paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region", sep = "")
+
+if (!file.exists(by_region)) {
+  dir.create(by_region)
+}
+
+# takes a bed file of regions of interest (ROI); regions must be exact locations of CpG sites for the below code to work
+file = "BCLAF_region.txt"
+ROI <- as.data.frame(fread(paste(workDir, dmrDir, chromosome, "_dmr_plots",  "/by_region/", file, sep = "")))
+ROI$num <- 1:nrow(ROI)
+ROI$width <- abs(ROI$end - ROI$start)
+
+#####################################
+
+for (region in 1:nrow(ROI)) {
+
+  num = NULL
+  chrom = NULL
+  start = NULL
+  end = NULL
+  gene = NULL
+  width = NULL
+  samples_of_interest = NULL
+
+  num = ROI$num[region]
+  chrom = ROI$chr[region]
+  start = ROI$start[region]
+  end = ROI$end[region]
+  gene = ROI$gene[region]
+  width = ROI$width[region]
+  samples_of_interest = ROI$samples[region]
+
+  file = paste(workDir, dmrDir, chromosome, "_dmr_plots", "/by_region/", num, "_", chrom, "_", start, "_", end, "_", gene, "_", width, "_", samples_of_interest, ".pdf", sep = "")
+
+  if(!file.exists(file)) {
+
+    Start_ROI = NULL
+    End_ROI = NULL
+
+    Start_ROI = which(data.all$CpG_beg == paste(ROI[region, "start"]))
+    End_ROI = which(data.all$CpG_end == paste(ROI[region, "end"]))
+
+    pdf(file)
+
+    ROIplot <- plotROI(data.all, samples, samples_of_interest, Start_ROI, End_ROI, "CpG_chrm","CpG_beg", title = gene)
+    print(ROIplot)
+
+    dev.off()
+    print(file)
+
+  }
+
+}
 
 # R version 4.2.0 (2022-04-22)
 # Platform: x86_64-pc-linux-gnu (64-bit)
@@ -591,3 +591,5 @@ epiFile <- fread(paste0(workDir, dmrDir, epiFile))
 # [22] vctrs_0.4.1            grid_4.2.0             tidyselect_1.1.2       glue_1.6.2             R6_2.5.1               fansi_1.0.3            purrr_0.3.4           
 # [29] magrittr_2.0.3         scales_1.2.0           ellipsis_0.3.2         assertthat_0.2.1       colorspace_2.0-3       utf8_1.2.2             stringi_1.7.8         
 # [36] RCurl_1.98-1.7         munsell_0.5.0          crayon_1.5.1          
+
+
