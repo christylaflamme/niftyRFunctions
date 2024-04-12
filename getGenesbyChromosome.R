@@ -15,17 +15,9 @@ mart <- useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
 results <- getBM(attributes = c("chromosome_name", "hgnc_symbol"), mart = mart)
 
 # subset the results by chromosome
-XY <- results %>% filter(chromosome_name == c("X", "Y"))
+# subset the results by chromosome
+XY <- results %>% filter(chromosome_name == "X" | chromosome_name == "Y")
 head(XY)
-
-# chromosome_name hgnc_symbol
-# 1               Y     TSPY24P
-# 2               Y     RBMY3AP
-# 3               Y     TSPY12P
-# 4               Y     DUX4L19
-# 5               Y      TTTY7B
-# 6               Y     RBMY2HP
-
 dim(XY) # [1] 1178    2
 
 sessionInfo()
