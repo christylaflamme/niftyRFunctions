@@ -67,3 +67,38 @@ checkSex <- function(meta) {
 meta <- getSex(betas,meta)
 meta <- checkSex(meta)
 
+########################################################################
+# remove probes on X and Y
+# INPUT:
+# betas obj: matrix containing the beta values for the samples (x/col = samples, y/row = probes)
+# OUTPUT:
+# betas obj: matrix with XYM probes removed
+# footnote: perform this step after doing the sex check; betas matrix will not be compatible for sex check after X and Y probes are removed
+
+removeXYM <- function(betas) {
+  
+  # keep track of the number of probes before filtering
+  starting_probes <- nrow(betas)
+  
+  # list of chromosomes to exclude
+  chr_exclude <- c("chr22_KI270879v1_alt", "chrM", "chrX", "chrY")
+  
+  # probe IDs to remove
+  chr_exclude_probes <- manifest %>% filter(CpG_chrm %in% chr_exclude)
+  chr_exclude_probes <- chr_exclude_probes$Probe_ID # 24694
+  
+  # new beta matrix with probe IDs removed
+  betas <- betas[-which(rownames(betas) %in% chr_exclude_probes),]
+  
+  # number of probes after filtering
+  ending_probes <- nrow(betas)
+  
+  # print statement recording the number of probes removed
+  print(paste0("Removing ", starting_probes-ending_probes, " probes on chrXYM from the data."))
+
+  return(betas)
+  
+}
+
+betas <- removeXYM(betas)
+
