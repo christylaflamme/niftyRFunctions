@@ -1,0 +1,63 @@
+# Session Versions: R4.4, Bioconductor 3.20, sesame 1.24.0
+########################################################################
+# sex check
+####################################
+# test this funcion on dummy data
+# test2 <- openSesame(sesameDataGet('EPIC.1.SigDF'))
+# inferSex(test2, platform = "EPIC")
+####################################
+# test the function on one sample
+inferSex(betas[,1], platform = "EPICv2")
+####################################
+# now create a loop for the whole matrix of samples to process the sex check automatically
+# INPUT:
+# betas obj: matrix containing the beta values for the samples (x/col = samples, y/row = probes)
+# meta obj: metadata matrix containing (x/col = metadata, y/row = samples)
+  # Sample_ID col: contains sentrix_rowcol unique ID that matches what IDs can be found as the columns of the beta matrix
+  # Reported_Sex: contains the reported sex for each sample as Male or Female / MALE or FEMALE.
+# OUTPUT:
+# new meta data object containing the inferred sex as another column (inferSex) and the sex match testing column (sexMatch)
+# loop
+
+getSex <- function(betas, meta) {
+
+  # loop over the samples included in the betas matrix
+  for (sample in colnames(betas)) {
+    
+    # get the sex info for each sample (perfect beta column name match) using inferSex
+    sex <- NA
+    sex <- inferSex(betas[,colnames(betas) == sample], platform = "EPICv2")
+    
+    # print statement is optional and can be commented out; here to make sure each line is running correctly
+    print(paste0("Predicting the sex for ", sample, ": ", sex))
+    
+    # store sample number for the position in the meta data matrix where results will be appended
+    sample_number <- which(meta$Sample_ID == sample)
+    
+    # now, add the inferred sex to the meta data information
+    meta$inferSex[sample_number] <- sex
+  }
+  return(meta)
+}
+
+####################################
+# now write a function for checking concordance of inferred sex with originally reported sex
+
+checkSex <- function(meta) {
+  # make sure that both col are factors
+  meta$Reported_Sex <- as.factor(meta$Reported_Sex)
+  meta$inferSex <- as.factor(meta$inferSex)
+  
+  # match the factor levels for inferSex with the meta data matrix
+  levels(meta$inferSex) <- c("Female", "Male")
+  
+  # do match testing for the sexes
+  meta$sexMatch <- meta$Reported_Sex[sample_number] == meta$inferSex[sample_number]
+  
+  return(meta)
+}
+
+####################################
+# now test out the functions
+meta <- getSex(betas,meta)
+meta <- checkSex(meta)
