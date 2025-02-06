@@ -40,3 +40,4 @@ testing
 
 # apply to the column of a dataframe
 df$newcol <- lapply(df$testcol, convertNum2Letter)
+df$newcol <- as.character(df$newcol) # convert to character if you want to save this matrix, object is not interpretable by standard R export functions
