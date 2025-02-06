@@ -1,7 +1,7 @@
 # this function is for converting the rack (8rowx12col) number nomenclature into letter annotation
 # example: spot 13 = B1, spot 3 = A3, spot 50 = E2
 
-test <- 12
+test <- 13
 
 convertNum2Letter <- function(test) {
   
@@ -37,3 +37,6 @@ convertNum2Letter <- function(test) {
 
 testing <- convertNum2Letter(test)
 testing
+
+# apply to the column of a dataframe
+df$newcol <- lapply(df$testcol, convertNum2Letter)
