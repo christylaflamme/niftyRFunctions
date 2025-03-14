@@ -153,7 +153,7 @@ n2g.indel.rnu2.2 <- function(coord="n:3:4:ins:A") { # minimal error handling; as
     baseref [["C"]] <- "G"
     baseref [["G"]] <- "C"
     
-    # index over the RNU4-2 sequence to find the REF (since n. nomenclature for indels doesn't include the REF)
+    # index over the RNU2-2 sequence to find the REF (since n. nomenclature for indels doesn't include the REF)
     seq = "ATCGCTTCTCGGCCTTTTGGCTAAGATCAAGTGTAGTATCTGTTCTTATCAGTTTAATATCTGATACGTCCTCTATCCGAGGACAATATATTAAATGGATTTTTGGAAATAGGAGATGGAATAGGAGCTTGCTCCGTCCACTCCACGCATCGACCTGGTATTGCAGTACTTCCAGGAACGGTGCACTCTCC"
     seq <- unlist(strsplit(seq, ""))
     
